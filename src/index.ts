@@ -8,6 +8,7 @@ async function run() {
 
     core.info(`입력된 볼륨 경로: ${volumePath}`);
     core.info(`입력된 네트워크 경로: ${networkPath}`);
+    core.info("Docker Compose Orchestrator 실행 시작...");
 
     // TODO: 다음 단계에서 js-yaml 등을 활용해
     // 볼륨.yaml과 네트워크.yaml을 읽어와 dockerode로 세팅하는 로직 구현
