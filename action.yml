@@ -1,0 +1,22 @@
+name: 'Docker Compose Orchestrator'
+description: '여러 도커 컴포즈 파일과 함께 독립된 네트워크 및 볼륨을 유연하게 통합 관리하고 구동합니다.'
+author: 'Namju Kim'
+
+branding:
+  icon: 'layers'
+  color: 'blue'
+
+inputs:
+  volume-path:
+    description: '생성하거나 관리할 볼륨 정의 YAML 파일 경로'
+    required: false
+    default: './volume.yaml'
+
+  network-path:
+    description: '생성하거나 관리할 네트워크 정의 YAML 파일 경로'
+    required: false
+    default: './network.yaml'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
