@@ -1,6 +1,6 @@
 {
   "name": "docker-compose-orchestrator",
-  "version": "0.0.3",
+  "version": "0.0.1",
   "description": "여러 도커 컴포즈 파일과 함께 독립된 네트워크 및 볼륨을 유연하게 통합 관리하고 구동합니다.",
   "main": "dist/index.js",
   "scripts": {

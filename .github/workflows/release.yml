@@ -27,7 +27,6 @@ jobs:
           pnpm install
           pnpm build # dist/index.js 생성
 
-      # ✨ 자동으로 마켓플레이스에 Release를 만들어주는 오픈소스 액션 활용
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
@@ -35,3 +34,8 @@ jobs:
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: "자동 생성된 릴리즈입니다."
+    
+      - name: Update Major Version Tag
+        uses: JasonEtco/build-and-tag-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
