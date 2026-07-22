@@ -15,11 +15,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -58,10 +59,14 @@ jobs:
 
           echo "Updating major tag: $MAJOR and minor tag: $MINOR"
 
-          # Force update major tag locally and push using default GITHUB_TOKEN
+          # Configure git user as github actions bot
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Use authenticated URL with token to bypass permission issues when pushing tags
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+          # Force update major/minor tags locally and push
           git tag -f $MAJOR $VERSION
           git tag -f $MINOR $VERSION
           git push origin $MAJOR --force
