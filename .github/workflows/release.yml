@@ -22,7 +22,7 @@ jobs:
           node-version: 20
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v3
         with:
           version: 11
 
@@ -58,11 +58,13 @@ jobs:
 
           echo "Updating major tag: $MAJOR and minor tag: $MINOR"
 
-          git config user.name "Gemini 3.5 Flash Lite"
-          git config user.email "gemini-3.5-flash-lite@nousresearch.com"
+          # Force update major tag locally and push using default GITHUB_TOKEN
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Force update major tag locally and push
           git tag -f $MAJOR $VERSION
           git tag -f $MINOR $VERSION
           git push origin $MAJOR --force
           git push origin $MINOR --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
