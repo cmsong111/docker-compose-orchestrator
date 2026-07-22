@@ -1,37 +1,68 @@
-name: Publish to Marketplace
+name: Release & Update Major Tags
+
 on:
   push:
-    tags:
-      - 'v*.*.*' # v1.0.0 같은 태그가 push되면 실행
+    branches:
+      - main
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout 코드
+      - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: pnpm 설치
-        uses: pnpm/action-setup@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
         with:
           version: 11
 
-      - name: Node.js 세팅
-        uses: actions/setup-node@v7
-        with:
-          node-version: 26
-          cache: 'pnpm'
-
-      - name: 의존성 설치 및 빌드
+      - name: Install Dependencies & Build Action
         run: |
           pnpm install
-          pnpm build # dist/index.js 생성
+          pnpm run build
 
-      # ✨ 자동으로 마켓플레이스에 Release를 만들어주는 오픈소스 액션 활용
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
+      - name: Read version from package.json
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
-          body: "자동 생성된 릴리즈입니다."
+          path: ./
+
+      - name: Create Git Tag and Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.package-version.outputs.current-version}}
+          name: Release v${{ steps.package-version.outputs.current-version}}
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Major/Minor Tags (e.g. v1, v1.0)
+        run: |
+          VERSION="v${{ steps.package-version.outputs.current-version }}"
+          
+          # Extract major and minor version parts (e.g. v1, v1.0 from v1.2.3)
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f1-2)
+
+          echo "Updating major tag: $MAJOR and minor tag: $MINOR"
+
+          git config user.name "Gemini 3.5 Flash Lite"
+          git config user.email "gemini-3.5-flash-lite@nousresearch.com"
+
+          # Force update major tag locally and push
+          git tag -f $MAJOR $VERSION
+          git tag -f $MINOR $VERSION
+          git push origin $MAJOR --force
+          git push origin $MINOR --force
